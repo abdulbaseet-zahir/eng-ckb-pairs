@@ -42,5 +42,5 @@ The Tatoeba class has the following methods:
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+This project is in the public domain under the Unlicense license. See the [LICENSE](LICENSE) file for details.
 
