@@ -5,26 +5,25 @@ from eng_ckb import Tatoeba
 
 st.set_page_config(page_title="Tatoeba", page_icon=":smiley:")
 
+#### Authentication ####
 
+#### Variables ####
 tb = Tatoeba()
-
-# Load the .tsv file into a pandas dataframe
-data_path = "Sentence pairs in English-Central Kurdish (Soranî) - 2023-12-22"
 data = tb.get_data()
-
-st.title("Sentence pairs in English-Central Kurdish (Soranî) - 2023-12-22")
-st.write("This is a demo app for reviewing sentence pairs.")
-st.write("The data is from the [Tatoeba](https://tatoeba.org/en/downloads) project.")
-
-# Get the number of rows in the dataframe
 nrows = len(data)
 
-# Create a variable to store the current index
-if "index" not in st.session_state:
-    st.session_state.index = 0
+usernames = data["ckb_username"].unique().tolist()
+
+with st.sidebar:
+    st.multiselect(
+        "Filter by users",
+        ["All"] + usernames,
+        ["All"],
+    )
+    st.button("Filter")
 
 
-# Create a function to go to the next row
+#### Functions ####
 def next_row():
     # Increment the index by one
     st.session_state.index += 1
@@ -43,14 +42,22 @@ def next_row():
 
 
 def save():
-    pass
+    try:
+        authentication_status = st.session_state.authentication_status
+    except:
+        authentication_status = False
+
+    if authentication_status:
+        eng_sentence = st.session_state.sentence_one_input
+        ckb_sentence = st.session_state.sentence_two_input
+        st.toast(f"""{eng_sentence} - {ckb_sentence}!""", icon="✅")
+    else:
+        st.error("Please login to save sentences!")
 
 
 def prev_row():
-    # Increment the index by one
     if st.session_state.index > 0:
         st.session_state.index -= 1
-        # Update the text input values with the sentences from the next row
         st.session_state.sentence_one_input = data["eng_sentence"][
             st.session_state.index
         ]
@@ -62,7 +69,15 @@ def prev_row():
         st.error("Index zero hase no previous!")
 
 
-# Create two text input widgets for the sentences
+#### Main ####
+st.title("Sentence pairs in English-Central Kurdish (Soranî) - 2023-12-22")
+st.write(
+    "This is a demo app for reviewing [Tatoeba](https://tatoeba.org/en/downloads) sentence pairs."
+)
+
+if "index" not in st.session_state:
+    st.session_state.index = 0
+
 sentence_one_input = st.text_input(
     "Sentence one",
     value=data["eng_sentence"][st.session_state.index],
@@ -74,13 +89,8 @@ sentence_two_input = st.text_input(
     key="sentence_two_input",
 )
 
-container = st.container(border=True)
-# Create two columns with equal width
-col1, col2, col3 = st.columns(
-    3,
-)
+col1, col2, col3 = st.columns(3)
 
-
-col3.button("Next -->", on_click=next_row)
-col2.button("Save", on_click=save())
-col1.button("<-- Previous", on_click=prev_row)
+col1.button("Prev", on_click=prev_row)
+col2.button("Save", on_click=save)
+col3.button("Next", on_click=next_row)
