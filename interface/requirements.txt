@@ -1,0 +1,6 @@
+pandas
+python-dotenv
+pymongo
+streamlit
+streamlit-authenticator
+
